@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient DB Interface</title>
+</head>
+<body>
+    <h1>Patient Database</h1>
+    <button id="insertButton">Insert Patients</button>
+    <br><br>
+    <textarea id="sqlQuery" rows="4" cols="50" placeholder="Enter your SQL query here..."></textarea>
+    <br>
+    <button id="submitButton">Submit Query</button>
+    <h2>Response:</h2>
+    <pre id="response"></pre>
+
+    <script>
+        document.getElementById('insertButton').addEventListener('click', async () => {
+            const response = await fetch('http://localhost:3001/api/v1/patient', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            document.getElementById('response').innerText = JSON.stringify(data);
+        });
+
+        document.getElementById('submitButton').addEventListener('click', async () => {
+            const query = document.getElementById('sqlQuery').value;
+            const response = await fetch(`http://localhost:3001/api/v1/sql`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query })
+            });
+            const data = await response.json();
+            document.getElementById('response').innerText = JSON.stringify(data);
+        });
+    </script>
+</body>
+</html>
