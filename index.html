@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Management</title>
+    <script>
+        const serverUrl = 'https://your-server2-url.a.run.app'; // Change this to your deployed Server 2 URL
+
+        function insertPatients() {
+            fetch(`${serverUrl}/insert`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    patients: [
+                        { name: 'Sara Brown', dateOfBirth: '1990-01-01' },
+                        { name: 'Mlon Eusk', dateOfBirth: '1961-02-01' },
+                        { name: 'Mack Ja', dateOfBirth: '1940-03-01' },
+                        { name: 'John Doe', dateOfBirth: '1990-04-01' }
+                    ]
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+            });
+        }
+
+        function submitQuery() {
+            const query = document.getElementById('sqlQuery').value;
+            const method = query.trim().toLowerCase().startsWith('select') ? 'GET' : 'POST';
+
+            fetch(`${serverUrl}/query`, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sql: query })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Patient Management System</h1>
+
+    <button onclick="insertPatients()">Insert Patients</button>
+    
+    <h2>Submit SQL Query</h2>
+    <textarea id="sqlQuery" rows="4" cols="50"></textarea><br>
+    <button onclick="submitQuery()">Submit Query</button>
+
+    <h2>Response</h2>
+    <pre id="response"></pre>
+</body>
+</html>
