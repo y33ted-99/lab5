@@ -4,7 +4,7 @@ const url = require('url');
 
 // MySQL connection setup (modify credentials accordingly)
 const connection = mysql.createConnection({
-    host: process.env.DB_HOST || 'lab5-db-1',
+    host: process.env.DB_HOST || 'db',
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || 'my-secret-pw',
     database: process.env.DB_DATABASE || 'hospital',

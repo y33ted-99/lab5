@@ -10,14 +10,14 @@ services:
     ports:
       - '3306:3306'
 
-  server:
-    build: .
-    depends_on:
-      - db
-    ports:
-      - '3001:3001'
-    environment:
-      - DB_HOST=db
-      - DB_USER=root
-      - DB_PASSWORD=my-secret-pw
-      - DB_DATABASE=hospital
+  # server:
+  #   build: .
+  #   depends_on:
+  #     - db
+  #   ports:
+  #     - '3001:3001'
+  #   environment:
+  #     - DB_HOST=db
+  #     - DB_USER=root
+  #     - DB_PASSWORD=my-secret-pw
+  #     - DB_DATABASE=hospital
