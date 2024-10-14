@@ -3,57 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Management</title>
+    <title>Patient Database</title>
     <script>
-        const serverUrl = 'https://server2-591100147622.us-central1.run.app'; // Change this to your deployed Server 2 URL
+        async function insertPatients() {
+            const patients = [
+                { name: 'Sara Brown', dateOfBirth: '1990-01-01' },
+                { name: 'Mlon Eusk', dateOfBirth: '1961-02-01' },
+                { name: 'Mack Ja', dateOfBirth: '1940-03-01' },
+                { name: 'John Doe', dateOfBirth: '1990-04-01' }
+            ];
 
-        function insertPatients() {
-            fetch(`${serverUrl}/insert`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    patients: [
-                        { name: 'Sara Brown', dateOfBirth: '1990-01-01' },
-                        { name: 'Mlon Eusk', dateOfBirth: '1961-02-01' },
-                        { name: 'Mack Ja', dateOfBirth: '1940-03-01' },
-                        { name: 'John Doe', dateOfBirth: '1990-04-01' }
-                    ]
+            const responses = await Promise.all(patients.map(patient => 
+                fetch('https://server2-591100147622.us-central1.run.app/insert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(patient)
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('response').innerText = JSON.stringify(data, null, 2);
-            });
+            ));
+
+            const results = await Promise.all(responses.map(res => res.json()));
+            document.getElementById('response').innerText = JSON.stringify(results, null, 2);
         }
 
-        function submitQuery() {
-            const query = document.getElementById('sqlQuery').value;
-            const method = query.trim().toLowerCase().startsWith('select') ? 'GET' : 'POST';
+        async function executeQuery() {
+            const query = document.getElementById('query').value;
 
-            fetch(`${serverUrl}/query`, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sql: query })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+            const response = await fetch('https://server2-591100147622.us-central1.run.app/select', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
             });
+
+            const results = await response.json();
+            document.getElementById('response').innerText = JSON.stringify(results, null, 2);
         }
     </script>
 </head>
 <body>
-    <h1>Patient Management System</h1>
-
+    <h1>Patient Database</h1>
     <button onclick="insertPatients()">Insert Patients</button>
-    
-    <h2>Submit SQL Query</h2>
-    <textarea id="sqlQuery" rows="4" cols="50"></textarea><br>
-    <button onclick="submitQuery()">Submit Query</button>
-
-    <h2>Response</h2>
+    <br><br>
+    <textarea id="query" rows="4" cols="50" placeholder="Enter SQL query here..."></textarea>
+    <br>
+    <button onclick="executeQuery()">Execute Query</button>
     <pre id="response"></pre>
 </body>
 </html>
