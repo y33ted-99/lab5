@@ -8,7 +8,7 @@
         body { font-family: Arial, sans-serif; margin: 20px; }
         button { margin: 5px; }
         textarea { width: 100%; height: 100px; }
-        #response { margin-top: 20px; }
+        #response { margin-top: 20px; white-space: pre-wrap; }
     </style>
 </head>
 <body>
@@ -24,7 +24,7 @@
     <div id="response"></div>
 
     <script>
-        const serverUrl = 'https://server2-591100147622.us-central1.run.app'; // Replace with your server URL
+        const serverUrl = 'https://server2-591100147622.us-central1.run.app'; // Your server URL
 
         document.getElementById('insertBtn').addEventListener('click', async () => {
             const patients = [
@@ -35,15 +35,23 @@
             ];
 
             for (const patient of patients) {
-                const response = await fetch(`${serverUrl}/insert`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(patient),
-                });
+                try {
+                    const response = await fetch(`${serverUrl}/insert`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(patient),
+                    });
 
-                const result = await response.json();
-                document.getElementById('response').innerHTML += 
-                    `Inserted: ${result.success ? 'Yes' : 'No'} (ID: ${result.id || 'N/A'})<br>`;
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    document.getElementById('response').innerHTML += 
+                        `Inserted: ${result.success ? 'Yes' : 'No'} (ID: ${result.id || 'N/A'})<br>`;
+                } catch (error) {
+                    document.getElementById('response').innerHTML += `Error inserting ${patient.name}: ${error.message}<br>`;
+                }
             }
         });
 
@@ -52,15 +60,23 @@
             const method = query.trim().toUpperCase().startsWith('SELECT') ? 'GET' : 'POST';
             const endpoint = method === 'GET' ? `${serverUrl}/select` : `${serverUrl}/insert`;
 
-            const response = await fetch(endpoint, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: method === 'POST' ? JSON.stringify({ sql: query }) : null,
-            });
+            try {
+                const response = await fetch(endpoint, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: method === 'POST' ? JSON.stringify({ sql: query }) : null,
+                });
 
-            const result = await response.json();
-            document.getElementById('response').innerHTML = 
-                typeof result === 'object' ? JSON.stringify(result, null, 2) : result;
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                document.getElementById('response').innerHTML = 
+                    typeof result === 'object' ? JSON.stringify(result, null, 2) : result;
+            } catch (error) {
+                document.getElementById('response').innerHTML = `Error: ${error.message}`;
+            }
         });
     </script>
 </body>
