@@ -64,7 +64,7 @@
                 const response = await fetch(endpoint, {
                     method: method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: method === 'POST' ? JSON.stringify({ sql: query }) : null,
+                    body: method === 'POST' ? JSON.stringify({ name: query.split(',')[0], dateOfBirth: query.split(',')[1] }) : null,
                 });
 
                 if (!response.ok) {
@@ -81,3 +81,4 @@
     </script>
 </body>
 </html>
+
