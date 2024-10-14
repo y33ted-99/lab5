@@ -4,47 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Database</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { margin: 5px; }
+        textarea { width: 100%; height: 100px; }
+        #response { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Patient Database</h1>
+    
+    <h2>Insert Predefined Patients</h2>
+    <button id="insertBtn">Insert Patients</button>
+
+    <h2>Execute SQL Query</h2>
+    <textarea id="sqlQuery" placeholder="Enter your SQL query here (SELECT or INSERT)"></textarea>
+    <button id="executeQueryBtn">Execute Query</button>
+
+    <div id="response"></div>
+
     <script>
-        async function insertPatients() {
+        const serverUrl = 'https://server2-591100147622.us-central1.run.app'; // Replace with your server URL
+
+        document.getElementById('insertBtn').addEventListener('click', async () => {
             const patients = [
                 { name: 'Sara Brown', dateOfBirth: '1990-01-01' },
                 { name: 'Mlon Eusk', dateOfBirth: '1961-02-01' },
                 { name: 'Mack Ja', dateOfBirth: '1940-03-01' },
-                { name: 'John Doe', dateOfBirth: '1990-04-01' }
+                { name: 'John Doe', dateOfBirth: '1990-04-01' },
             ];
 
-            const responses = await Promise.all(patients.map(patient => 
-                fetch('https://server2-591100147622.us-central1.run.app/insert', {
+            for (const patient of patients) {
+                const response = await fetch(`${serverUrl}/insert`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(patient)
-                })
-            ));
+                    body: JSON.stringify(patient),
+                });
 
-            const results = await Promise.all(responses.map(res => res.json()));
-            document.getElementById('response').innerText = JSON.stringify(results, null, 2);
-        }
+                const result = await response.json();
+                document.getElementById('response').innerHTML += 
+                    `Inserted: ${result.success ? 'Yes' : 'No'} (ID: ${result.id || 'N/A'})<br>`;
+            }
+        });
 
-        async function executeQuery() {
-            const query = document.getElementById('query').value;
+        document.getElementById('executeQueryBtn').addEventListener('click', async () => {
+            const query = document.getElementById('sqlQuery').value;
+            const method = query.trim().toUpperCase().startsWith('SELECT') ? 'GET' : 'POST';
+            const endpoint = method === 'GET' ? `${serverUrl}/select` : `${serverUrl}/insert`;
 
-            const response = await fetch('https://server2-591100147622.us-central1.run.app/select', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
+            const response = await fetch(endpoint, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: method === 'POST' ? JSON.stringify({ sql: query }) : null,
             });
 
-            const results = await response.json();
-            document.getElementById('response').innerText = JSON.stringify(results, null, 2);
-        }
+            const result = await response.json();
+            document.getElementById('response').innerHTML = 
+                typeof result === 'object' ? JSON.stringify(result, null, 2) : result;
+        });
     </script>
-</head>
-<body>
-    <h1>Patient Database</h1>
-    <button onclick="insertPatients()">Insert Patients</button>
-    <br><br>
-    <textarea id="query" rows="4" cols="50" placeholder="Enter SQL query here..."></textarea>
-    <br>
-    <button onclick="executeQuery()">Execute Query</button>
-    <pre id="response"></pre>
 </body>
 </html>
